@@ -1,0 +1,49 @@
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+import matplotlib.pyplot as plt
+data = pd.DataFrame([
+    ['Sunny', 'Hot', 'High', 'Weak', 'No'],
+    ['Sunny', 'Hot', 'High', 'Strong', 'No'],
+    ['Overcast', 'Hot', 'High', 'Weak', 'Yes'],
+    ['Rain', 'Mild', 'High', 'Weak', 'Yes'],
+    ['Rain', 'Cool', 'Normal', 'Weak', 'Yes'],
+    ['Rain', 'Cool', 'Normal', 'Strong', 'No'],
+    ['Overcast', 'Cool', 'Normal', 'Strong', 'Yes'],
+    ['Sunny', 'Mild', 'High', 'Weak', 'No'],
+    ['Sunny', 'Cool', 'Normal', 'Weak', 'Yes'],
+    ['Rain', 'Mild', 'Normal', 'Weak', 'Yes'],
+    ['Sunny', 'Mild', 'Normal', 'Strong', 'Yes'],
+    ['Overcast', 'Mild', 'High', 'Strong', 'Yes'],
+    ['Overcast', 'Hot', 'Normal', 'Weak', 'Yes'],
+    ['Rain', 'Mild', 'High', 'Strong', 'No']
+], columns=['Outlook', 'Temperature', 'Humidity', 'Wind', 'PlayTennis'])
+encoders = {}
+for column in data.columns:
+    le = LabelEncoder()
+    data[column] = le.fit_transform(data[column])
+    encoders[column] = le 
+X = data[['Outlook', 'Temperature', 'Humidity', 'Wind']]
+y = data['PlayTennis']
+model = DecisionTreeClassifier(criterion='entropy')
+model.fit(X, y)
+plt.figure(figsize=(12, 6))
+plot_tree(model, 
+          feature_names=X.columns, 
+          class_names=encoders['PlayTennis'].classes_, 
+          filled=True)
+plt.title("ID3 Decision Tree - PlayTennis")
+plt.show()
+sample = pd.DataFrame([[
+    encoders['Outlook'].transform(['Sunny'])[0],
+    encoders['Temperature'].transform(['Cool'])[0],
+    encoders['Humidity'].transform(['High'])[0],
+    encoders['Wind'].transform(['Strong'])[0]
+]], columns=X.columns)
+pred = model.predict(sample)
+pred_label = encoders['PlayTennis'].inverse_transform(pred)[0]
+
+print("Prediction for ['Sunny', 'Cool', 'High', 'Strong']:", pred_label)
+
+output:
+Prediction for ['Sunny', 'Cool', 'High', 'Strong']: No
