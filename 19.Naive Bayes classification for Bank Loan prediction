@@ -1,0 +1,56 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import seaborn as sns
+import matplotlib.pyplot as plt
+data = pd.DataFrame({
+    'Age': [25, 35, 45, 20, 50, 23, 40, 60, 30, 27],
+    'Income': [50000, 60000, 80000, 20000, 120000, 30000, 90000, 150000, 40000, 45000],
+    'CreditScore': [700, 650, 800, 600, 850, 580, 750, 900, 620, 640],
+    'LoanAmount': [10000, 15000, 20000, 5000, 25000, 7000, 22000, 30000, 8000, 9000],
+    'Married': ['Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'No', 'No'],
+    'Approved': ['Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'No', 'No']
+})
+le = LabelEncoder()
+data['Married'] = le.fit_transform(data['Married'])  
+data['Approved'] = le.fit_transform(data['Approved'])  
+X = data[['Age', 'Income', 'CreditScore', 'LoanAmount', 'Married']]
+y = data['Approved']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+model = GaussianNB()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print("Accuracy:", round(accuracy_score(y_test, y_pred), 2))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, cmap='Blues')
+plt.title("Naive Bayes - Bank Loan Approval")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+new_customer = pd.DataFrame({
+    'Age': [32],
+    'Income': [55000],
+    'CreditScore': [710],
+    'LoanAmount': [12000],
+    'Married': [le.transform(['Yes'])[0]]
+})
+prediction = model.predict(new_customer)
+print("\nLoan Approval Prediction for new customer:", "Approved" if prediction[0] == 1 else "Not Approved")
+
+output:
+Accuracy: 1.0
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00         2
+           1       1.00      1.00      1.00         1
+
+Confusion Matrix:
+[[2 0]
+ [0 1]]
+
+Loan Approval Prediction for new customer: Approved
