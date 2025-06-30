@@ -1,0 +1,78 @@
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+import seaborn as sns
+import matplotlib.pyplot as plt
+iris = load_iris()
+X, y = iris.data, iris.target
+target_names = iris.target_names
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+models = {
+    'Logistic Regression': LogisticRegression(max_iter=200),
+    'K-Nearest Neighbors': KNeighborsClassifier(n_neighbors=3),
+    'Decision Tree': DecisionTreeClassifier(),
+    'Naive Bayes': GaussianNB(),
+    'SVM': SVC(),
+    'Random Forest': RandomForestClassifier()
+}
+results = []
+for name, model in models.items():
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
+    cv = cross_val_score(model, X, y, cv=5).mean()
+    results.append((name, acc, cv))
+    print(f"\n{name}")
+    print("Accuracy:", round(acc, 4))
+    print("Cross-Validation Score:", round(cv, 4))
+    print("Classification Report:\n", classification_report(y_test, y_pred, target_names=target_names))
+names = [x[0] for x in results]
+accuracies = [x[1] for x in results]
+cv_scores = [x[2] for x in results]
+plt.figure(figsize=(10, 6))
+sns.barplot(x=accuracies, y=names, palette="viridis")
+plt.xlabel("Accuracy Score")
+plt.title("Classifier Accuracy Comparison on Iris Dataset")
+plt.xlim(0.8, 1.05)
+plt.grid(True)
+plt.show()
+best_model = RandomForestClassifier()
+best_model.fit(X_train, y_train)
+best_pred = best_model.predict(X_test)
+cm = confusion_matrix(y_test, best_pred)
+sns.heatmap(cm, annot=True, cmap="Blues", xticklabels=target_names, yticklabels=target_names)
+plt.title("Confusion Matrix: Random Forest")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+output:
+Logistic Regression
+Accuracy: 1.0
+Cross-Validation Score: 0.9733
+
+K-Nearest Neighbors
+Accuracy: 1.0
+Cross-Validation Score: 0.98
+
+Decision Tree
+Accuracy: 0.9556
+Cross-Validation Score: 0.9533
+
+Naive Bayes
+Accuracy: 1.0
+Cross-Validation Score: 0.9533
+
+SVM
+Accuracy: 1.0
+Cross-Validation Score: 0.98
+
+Random Forest
+Accuracy: 1.0
+Cross-Validation Score: 0.9667
