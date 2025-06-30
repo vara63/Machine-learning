@@ -1,0 +1,28 @@
+import pandas as pd
+def find_s_algorithm(data):
+    concepts = data.iloc[:, :-1].values
+    target = data.iloc[:, -1].values
+    for i, val in enumerate(target):
+        if val.lower() == "yes":
+            hypothesis = concepts[i].copy()
+            break
+    for i, val in enumerate(target):
+        if val.lower() == "yes":
+            for j in range(len(hypothesis)):
+                if hypothesis[j] != concepts[i][j]:
+                    hypothesis[j] = '?'
+    return hypothesis
+data = pd.DataFrame([
+    ['Sunny', 'Warm', 'Normal', 'Strong', 'Warm', 'Same', 'Yes'],
+    ['Sunny', 'Warm', 'High', 'Strong', 'Warm', 'Same', 'Yes'],
+    ['Rainy', 'Cold', 'High', 'Strong', 'Warm', 'Change', 'No'],
+    ['Sunny', 'Warm', 'High', 'Strong', 'Cool', 'Change', 'Yes']
+], columns=['Sky', 'Temp', 'Humidity', 'Wind', 'Water', 'Forecast', 'EnjoySport'])
+final_hypothesis = find_s_algorithm(data)
+print("Most specific hypothesis found by FIND-S:")
+print(final_hypothesis)
+
+
+output:
+Most specific hypothesis found by FIND-S:
+['Sunny', 'Warm', '?', 'Strong', '?', '?']
