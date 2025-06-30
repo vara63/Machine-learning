@@ -1,0 +1,41 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+data = pd.DataFrame({
+    'Income': [45000, 54000, 23000, 67000, 120000, 34000, 89000, 22000, 49000, 51000],
+    'Age': [25, 34, 22, 45, 52, 28, 41, 21, 30, 33],
+    'LoanAmount': [5000, 10000, 2000, 12000, 30000, 7000, 15000, 3000, 9000, 8000],
+    'CreditScore': [1, 1, 0, 1, 1, 0, 1, 0, 1, 1]  # 1 = Good, 0 = Bad
+})
+X = data[['Income', 'Age', 'LoanAmount']]
+y = data['CreditScore']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+model = LogisticRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+print("\nAccuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt="d", cmap="Blues")
+plt.title("Confusion Matrix - Credit Score Classification")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+output:
+Confusion Matrix:
+[[1 0]
+ [0 2]]
+
+Accuracy: 1.0
+
+Classification Report:
+              precision    recall  f1-score   support
+           0       1.00      1.00      1.00         1
+           1       1.00      1.00      1.00         2
