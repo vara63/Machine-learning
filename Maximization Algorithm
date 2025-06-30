@@ -1,0 +1,36 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.mixture import GaussianMixture
+from sklearn.datasets import make_blobs
+X, y_true = make_blobs(n_samples=300, centers=3, cluster_std=0.60, random_state=42)
+plt.scatter(X[:, 0], X[:, 1], s=30, cmap='viridis')
+plt.title("Original Unlabeled Data")
+plt.show()
+gmm = GaussianMixture(n_components=3, random_state=42)
+gmm.fit(X)
+labels = gmm.predict(X)
+plt.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis')
+plt.scatter(gmm.means_[:, 0], gmm.means_[:, 1], c='red', s=100, marker='X', label='Cluster Centers')
+plt.title("Clustering using EM (GMM)")
+plt.legend()
+plt.show()
+print("Estimated means (centroids):")
+print(gmm.means_)
+print("\nEstimated covariances:")
+print(gmm.covariances_)
+
+output:
+Estimated means (centroids):
+[[-2.58361866  9.03185632]
+ [-6.88217395 -6.94243433]
+ [ 4.70421356  1.99562444]]
+
+Estimated covariances:
+[[[ 0.26952915  0.01572624]
+  [ 0.01572624  0.35537521]]
+
+ [[ 0.3706632   0.03446655]
+  [ 0.03446655  0.35379858]]
+
+ [[ 0.38532143 -0.03543947]
+  [-0.03543947  0.30601282]]]
