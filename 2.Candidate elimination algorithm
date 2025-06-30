@@ -1,0 +1,64 @@
+import pandas as pd
+data = pd.DataFrame([
+    ['Sunny', 'Warm', 'Normal', 'Strong', 'Warm', 'Same', 'Yes'],
+    ['Sunny', 'Warm', 'High', 'Strong', 'Warm', 'Same', 'Yes'],
+    ['Rainy', 'Cold', 'High', 'Strong', 'Warm', 'Change', 'No'],
+    ['Sunny', 'Warm', 'High', 'Strong', 'Cool', 'Change', 'Yes']
+], columns=['Sky', 'Temp', 'Humidity', 'Wind', 'Water', 'Forecast', 'EnjoySport'])
+def is_more_general(h1, h2):
+    return all(x == '?' or x == y for x, y in zip(h1, h2))
+def generalize_S(instance, hypothesis):
+    new_hypothesis = list(hypothesis)
+    for i in range(len(hypothesis)):
+        if hypothesis[i] == 'Ø':
+            new_hypothesis[i] = instance[i]
+        elif hypothesis[i] != instance[i]:
+            new_hypothesis[i] = '?'
+    return new_hypothesis
+def specialize_G(hypothesis, domains, instance):
+    specializations = []
+    for i in range(len(hypothesis)):
+        if hypothesis[i] == '?':
+            for value in domains[i]:
+                if value != instance[i]:
+                    new_hyp = list(hypothesis)
+                    new_hyp[i] = value
+                    specializations.append(new_hyp)
+        elif hypothesis[i] != instance[i]:
+            new_hyp = list(hypothesis)
+            new_hyp[i] = 'Ø'
+            specializations.append(new_hyp)
+    return specializations
+def candidate_elimination(data):
+    X = data.iloc[:, :-1].values
+    y = data.iloc[:, -1].values
+    domains = [list(data[col].unique()) for col in data.columns[:-1]]
+    S = ['Ø'] * len(X[0])
+    G = [['?'] * len(X[0])]
+    for idx, instance in enumerate(X):
+        if y[idx] == 'Yes':
+            G = [g for g in G if is_more_general(g, instance)]
+            S = generalize_S(instance, S)
+        elif y[idx] == 'No':
+            G_temp = G.copy()
+            for g in G_temp:
+                if is_more_general(g, instance):
+                    G.remove(g)
+                    G += [h for h in specialize_G(g, domains, instance)
+                          if is_more_general(h, S)]
+            G = [g for g in G if not any(is_more_general(other, g) and other != g for other in G)]
+    return S, G
+S_final, G_final = candidate_elimination(data)
+print("Final Specific Hypothesis (S):")
+print(S_final)
+print("\nFinal General Hypotheses (G):")
+for g in G_final:
+    print(g)
+
+output:
+Final Specific Hypothesis (S):
+['Sunny', 'Warm', '?', 'Strong', '?', '?']
+
+Final General Hypotheses (G):
+['Sunny', '?', '?', '?', '?', '?']
+['?', 'Warm', '?', '?', '?', '?']
